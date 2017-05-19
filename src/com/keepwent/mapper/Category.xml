@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	<mapper namespace="com.keepwent.mapper.CategoryMapper">
+	    <insert id="add" parameterType="User" >
+	        insert into user_ (account,password) values (#{account},#{password})
+	    </insert>
+	    
+
+		<select id="check" parameterType="User" resultType="int">
+			select count(*) from user_ where account =#{account}
+		</select>
+		<select id="login" parameterType="User" resultType="int">
+		select count(*) from user_ where account =#{account} and password=#{password}
+		</select>
+	<insert id="addContent" parameterType="Content" >
+		insert into content_ (title,account,message,time_) values (#{title},#{account},#{message},#{time_})
+	</insert>
+	<insert id="addAnswer2" parameterType="Answer2">
+		insert into 2answer_ (aid2,account2,message2,time2) values (#{aid2},#{account2},#{message2},#{time2})
+	</insert>
+
+	<resultMap id="contents" type="Content">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="account" property="account" />
+		<result column="message" property="message"/>
+		<result column="time_" property="time_"/>
+	</resultMap>
+
+	<!-- 返回一个list的写法 -->
+	<select id="getAllContent"  resultMap="contents" >
+		select * from content_
+	</select>
+
+	<resultMap id="showOne" type="Content">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="account" property="account"/>
+		<result column="time_" property="time_"/>
+		<result column="message" property="message"/>
+		<!-- 一对多的关系 -->
+		<!-- property: 指的是集合属性的值, ofType：指的是集合中元素的类型 -->
+		<collection property="answers" ofType="Answer">
+			<id column="a_id" property="a_id" />
+			<result column="a_account" property="a_account" />
+			<result column="a_message" property="a_message" />
+			<result column="a_time_" property="a_time_"/>
+
+			<collection property="answer2List" ofType="Answer2">
+				<id column="id2" property="id2"/>
+				<id column="aid2" property="aid2"/>
+				<result column="account2" property="account2"/>
+				<result column="message2" property="message2"/>
+				<result column="time2" property="time2"/>
+			</collection>
+
+		</collection>
+	</resultMap>
+	<select id="showOneContent" parameterType="_int" resultMap="showOne">
+	select content_.*,answer_.*,2answer_.* from (content_ left join  answer_ on answer_.a_cid=content_.id)
+	left join 2answer_ on 2answer_.aid2=answer_.a_id
+ 	where content_.id=#{id}
+	</select>
+	<insert id="addAnswer" parameterType="Answer">
+		 insert into answer_ (a_cid,a_account,a_message,a_time_) values (#{a_cid},#{a_account},#{a_message},#{a_time_})
+	</insert>
+	<select id="judge" parameterType="User" resultType="int">
+	 SELECT count(*) from user_ WHERE account=#{account}
+	</select>
+
+</mapper>
+
